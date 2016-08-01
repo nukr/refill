@@ -1,0 +1,14 @@
+pipeline:
+  build:
+    image: mhart/alpine-node:6.3.1
+    commands:
+      - npm i
+      - npm run build
+      - npm test
+  docker:
+    repo: asia.gcr.io/instant-matter-785/refill
+    tag:
+      - latest
+      - "${DRONE_TAG##v}"
+    when:
+      event: tag
