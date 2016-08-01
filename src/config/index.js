@@ -4,6 +4,6 @@ export default {
   },
   rethinkdb: {
     host: 'rethinkdb',
-    port: 9200
+    port: 28015
   }
 }
