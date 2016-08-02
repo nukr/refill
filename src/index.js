@@ -17,12 +17,14 @@ function flatten_db_list (db_list) {
 }
 
 async function refill (db_list) {
+  var counter = 0
   for (var i = 0; i < db_list.length; i++) {
     const { db, table } = db_list[i]
     const data = await r.db(db).table(table)
     for (var j = 0; j < data.length; j++) {
+      counter += 1
       try {
-        var es_result = await client.update({
+        await client.update({
           index: db,
           type: table,
           body: {
@@ -32,12 +34,12 @@ async function refill (db_list) {
           id: data[j].id,
           parent: data[j].__parent
         })
-        console.log(es_result)
       } catch (e) {
         console.error(e.toJSON())
       }
     }
   }
+  console.log(`inseted ${counter} record`)
 }
 
 function sleep (ms_time) {
@@ -49,7 +51,7 @@ function sleep (ms_time) {
 }
 
 ;(async () => {
-  for (;;) {
+  while (true) {
     console.time('refill')
     const db_list = await r.dbList()
       .filter((row) => row.ne('rethinkdb'))
