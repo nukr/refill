@@ -6,14 +6,6 @@ import config from './config'
 const client = new elasticsearch.Client(config.es)
 const r = rethinkdbdash(config.rethinkdb)
 
-const load_db_list = r.dbList()
-  .filter((row) => row.ne('rethinkdb'))
-  .map((row) => ({db_name: row}))
-  .map((row) => {
-    const tables = r.db(row('db_name')).tableList()
-    return row.merge({tables: tables})
-  })
-
 function flatten_db_list (db_list) {
   const promises = db_list.map((db) =>
     db.tables.map((table_name) => (
@@ -66,7 +58,14 @@ function sleep (time_string) {
 ;(async () => {
   for (;;) {
     console.time('refill')
-    const db_list = await load_db_list()
+    const db_list = await r.dbList()
+      .filter((row) => row.ne('rethinkdb'))
+      .map((row) => ({db_name: row}))
+      .map((row) => {
+        const tables = r.db(row('db_name')).tableList()
+        return row.merge({tables: tables})
+      })
+
     const flattened_db_list = flatten_db_list(db_list)
     await refill(flattened_db_list)
     const await_time = '1mins'
