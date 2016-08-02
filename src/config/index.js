@@ -5,5 +5,6 @@ export default {
   rethinkdb: {
     host: 'rethinkdb',
     port: 28015
-  }
+  },
+  await_time: process.env.AWAIT_TIME || '30mins'
 }

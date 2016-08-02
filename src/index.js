@@ -68,10 +68,11 @@ function sleep (time_string) {
 
     const flattened_db_list = flatten_db_list(db_list)
     await refill(flattened_db_list)
-    const await_time = '1mins'
+    console.timeEnd('refill')
+
+    const await_time = config.await_time
     console.log(`await ${await_time}`)
     await sleep(await_time)
-    console.timeEnd('refill')
   }
 })().catch((e) => {
   console.error(e)
