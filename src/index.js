@@ -2,6 +2,7 @@ import rethinkdbdash from 'rethinkdbdash'
 import flatten from 'lodash/flatten'
 import elasticsearch from 'elasticsearch'
 import config from './config'
+import { CronJob } from 'cron'
 
 const client = new elasticsearch.Client(config.es)
 const r = rethinkdbdash(config.rethinkdb)
@@ -42,33 +43,25 @@ async function refill (db_list) {
   console.log(`inseted ${counter} record`)
 }
 
-function sleep (ms_time) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve()
+async function runner () {
+  console.time('refill')
+  const db_list = await r.dbList()
+    .filter((row) => row.ne('rethinkdb'))
+    .map((row) => ({db_name: row}))
+    .map((row) => {
+      const tables = r.db(row('db_name')).tableList()
+      return row.merge({tables: tables})
     })
-  }, ms_time)
+
+  const flattened_db_list = flatten_db_list(db_list)
+  await refill(flattened_db_list)
+  console.timeEnd('refill')
 }
 
-;(async () => {
-  while (true) {
-    console.time('refill')
-    const db_list = await r.dbList()
-      .filter((row) => row.ne('rethinkdb'))
-      .map((row) => ({db_name: row}))
-      .map((row) => {
-        const tables = r.db(row('db_name')).tableList()
-        return row.merge({tables: tables})
-      })
+const job = new CronJob('00 */1 * * * *', async () => {
+  await runner()
+}, () => {
+  console.log('done')
+}, true, 'Asia/Taipei')
 
-    const flattened_db_list = flatten_db_list(db_list)
-    await refill(flattened_db_list)
-    console.timeEnd('refill')
-
-    const await_time = config.await_time
-    console.log(`await ${await_time}`)
-    await sleep(config.await_time)
-  }
-})().catch((e) => {
-  console.error(e)
-})
+job.start()
