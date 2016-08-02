@@ -6,15 +6,15 @@ import config from './config'
 const client = new elasticsearch.Client(config.es)
 const r = rethinkdbdash(config.rethinkdb)
 
-async function get_list () {
-  const db_list = await r.dbList()
-    .filter((row) => row.ne('rethinkdb'))
-    .map((row) => ({db_name: row}))
-    .map((row) => {
-      const tables = r.db(row('db_name')).tableList()
-      return row.merge({tables: tables})
-    })
+const load_db_list = r.dbList()
+  .filter((row) => row.ne('rethinkdb'))
+  .map((row) => ({db_name: row}))
+  .map((row) => {
+    const tables = r.db(row('db_name')).tableList()
+    return row.merge({tables: tables})
+  })
 
+function flatten_db_list (db_list) {
   const promises = db_list.map((db) =>
     db.tables.map((table_name) => (
       {db: db.db_name, table: table_name}
@@ -48,10 +48,32 @@ async function refill (db_list) {
   }
 }
 
+function parse_time_string (time_string) {
+  const min_reg = /^(.*)min[s]?$/
+  const [ , mins ] = min_reg.exec(time_string)
+  console.log('mins', mins)
+  const result = ~~mins * 60 * 1000
+  console.log('result', result)
+}
+
+function sleep (time_string) {
+  const ms_time = parse_time_string(time_string)
+  return new Promise((resolve, reject) => {
+    setTimeout(resolve)
+  }, ms_time)
+}
+
 ;(async () => {
-  const db_list = await get_list()
-  await refill(db_list)
-  r.getPoolMaster().drain()
+  for (;;) {
+    console.time('refill')
+    const db_list = await load_db_list()
+    const flattened_db_list = flatten_db_list(db_list)
+    await refill(flattened_db_list)
+    const await_time = '1mins'
+    console.log(`await ${await_time}`)
+    await sleep(await_time)
+    console.timeEnd('refill')
+  }
 })().catch((e) => {
   console.error(e)
 })
