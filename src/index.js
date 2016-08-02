@@ -42,7 +42,9 @@ async function refill (db_list) {
 
 function sleep (ms_time) {
   return new Promise((resolve, reject) => {
-    setTimeout(resolve)
+    setTimeout(() => {
+      resolve()
+    })
   }, ms_time)
 }
 
