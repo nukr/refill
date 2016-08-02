@@ -40,16 +40,7 @@ async function refill (db_list) {
   }
 }
 
-function parse_time_string (time_string) {
-  const min_reg = /^(.*)min[s]?$/
-  const [ , mins ] = min_reg.exec(time_string)
-  console.log('mins', mins)
-  const result = ~~mins * 60 * 1000
-  console.log('result', result)
-}
-
-function sleep (time_string) {
-  const ms_time = parse_time_string(time_string)
+function sleep (ms_time) {
   return new Promise((resolve, reject) => {
     setTimeout(resolve)
   }, ms_time)
@@ -72,7 +63,7 @@ function sleep (time_string) {
 
     const await_time = config.await_time
     console.log(`await ${await_time}`)
-    await sleep(await_time)
+    await sleep(config.await_time)
   }
 })().catch((e) => {
   console.error(e)
