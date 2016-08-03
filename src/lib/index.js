@@ -1,22 +1,13 @@
-import rethinkdbdash from 'rethinkdbdash'
-import elasticsearch from 'elasticsearch'
-import flatten from 'lodash/flatten'
-import config from '../config'
-
-const client = new elasticsearch.Client(config.es)
-const r = rethinkdbdash(config.rethinkdb)
-
-export function flatten_db_list (db_list) {
-  const promises = db_list.map((db) =>
-    db.tables.map((table_name) => (
-      {db: db.db_name, table: table_name}
-    ))
-  )
-
-  return flatten(promises)
+export function join_db_table (db_list) {
+  return db_list.reduce((left, right) => {
+    right.tables
+      .map(table => ({db: right.db_name, table}))
+      .forEach(o => left.push(o))
+    return left
+  }, [])
 }
 
-export async function refill (db_list) {
+export async function refill (db_list, r, client) {
   var counter = 0
   for (var i = 0; i < db_list.length; i++) {
     const { db, table } = db_list[i]
@@ -39,10 +30,10 @@ export async function refill (db_list) {
       }
     }
   }
-  console.log(`inseted ${counter} record`)
+  console.log(`inserted ${counter} record`)
 }
 
-export function load_db_list () {
+export function load_db_list (r) {
   return r.dbList()
     .filter((row) => row.ne('rethinkdb'))
     .map((row) => ({db_name: row}))
