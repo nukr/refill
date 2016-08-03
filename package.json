@@ -27,7 +27,6 @@
   "dependencies": {
     "cron": "^1.1.0",
     "elasticsearch": "^11.0.1",
-    "lodash": "^4.14.1",
     "rethinkdbdash": "^2.3.19"
   }
 }

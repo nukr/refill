@@ -1,7 +1,8 @@
 import { CronJob } from 'cron'
 import rethinkdbdash from 'rethinkdbdash'
 import elasticsearch from 'elasticsearch'
-import config from '../config'
+import config from './config'
+
 import {
   load_db_list,
   flatten_db_list,
