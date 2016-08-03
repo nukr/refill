@@ -1,3 +1,7 @@
+/**
+* join_db_table
+*
+*/
 export function join_db_table (db_list) {
   return db_list.reduce((left, right) => {
     right.tables

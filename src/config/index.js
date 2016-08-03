@@ -1,10 +1,10 @@
 export default {
   es: {
-    host: 'elasticsearch:9200'
+    host: process.env.ES_HOST || 'elasticsearch:9200'
   },
   rethinkdb: {
-    host: 'rethinkdb',
-    port: 28015
+    host: process.env.RETHINKDB_HOST || 'rethinkdb',
+    port: process.env.RETHINKDB_PORT || 28015
   },
-  cron: process.env.CRON || '00 */30 * * * *'
+  interval: process.env.INTERVAL || 30 * 60 * 1000
 }
