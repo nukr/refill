@@ -30,7 +30,12 @@ async function refiller () {
   try {
     await refill(joined_db_table, r, client)
   } catch (e) {
-    console.error(e)
+    if (e.statusCode === 400) {
+      const json_error = JSON.stringify(e.toJSON(), null, 2)
+      console.error(json_error)
+    } else {
+      console.error(e)
+    }
   }
   console.timeEnd('refill')
 }
