@@ -25,6 +25,7 @@
     "flow-bin": "^0.30.0"
   },
   "dependencies": {
+    "@nukr/multiconfig": "^0.1.2",
     "elasticsearch": "^11.0.1",
     "rethinkdbdash": "^2.3.19"
   }

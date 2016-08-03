@@ -17,7 +17,7 @@ setInterval(() => {
   }).catch((e) => {
     console.error(e)
   })
-}, 10 * 1000)
+}, config.interval)
 
 async function refiller () {
   console.time('load_db_list')

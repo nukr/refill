@@ -30,7 +30,7 @@ export async function refill (db_list, r, client) {
           parent: data[j].__parent
         })
       } catch (e) {
-        console.error(e.toJSON())
+        console.error(e)
       }
     }
   }

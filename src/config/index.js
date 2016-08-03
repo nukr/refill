@@ -1,10 +1,12 @@
-export default {
+import multiconfig from '@nukr/multiconfig'
+
+export default multiconfig({
   es: {
-    host: process.env.ES_HOST || 'elasticsearch:9200'
+    host: 'elasticsearch:9200'
   },
   rethinkdb: {
-    host: process.env.RETHINKDB_HOST || 'rethinkdb',
-    port: process.env.RETHINKDB_PORT || 28015
+    host: 'rethinkdb',
+    port: 28015
   },
-  interval: process.env.INTERVAL || 30 * 60 * 1000
-}
+  interval: 30 * 60 * 1000
+})
