@@ -1,5 +1,6 @@
 import rethinkdbdash from 'rethinkdbdash'
 import config from '../config'
+import sleep from './sleep'
 
 const r = rethinkdbdash(Object.assign({}, config.rethinkdb, {cursor: true}))
 /**
@@ -28,13 +29,12 @@ export async function refill (db_list, client) {
       try {
         let datum = await dataCursor.next()
         data.push(datum)
-        if (data.length === config.bulk.size) {
-          await es_bulk(data, client, db, table)
-          data = []
-        }
       } catch (e) {
         next = false
+      }
+      if (data.length === config.bulk.size || !next) {
         await es_bulk(data, client, db, table)
+        await sleep(config.bulk.delay)
         data = []
       }
     }
@@ -63,4 +63,3 @@ export function load_db_list (r) {
       return row.merge({tables: tables})
     })
 }
-

@@ -1,6 +1,7 @@
 import rethinkdbdash from 'rethinkdbdash'
 import elasticsearch from 'elasticsearch'
 import config from './config'
+import sleep from './lib/sleep'
 
 import {
   load_db_list,
@@ -53,10 +54,3 @@ async function refiller () {
   console.timeEnd('refill')
 }
 
-function sleep (t) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve()
-    }, t)
-  })
-}

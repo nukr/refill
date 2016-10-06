@@ -10,6 +10,7 @@ export default multiconfig({
   },
   interval: 30 * 1000,
   bulk: {
-    size: 100
+    size: 100,
+    delay: 0
   }
 })
