@@ -8,5 +8,8 @@ export default multiconfig({
     host: 'rethinkdb',
     port: 28015
   },
-  interval: 30 * 60 * 1000
+  interval: 30 * 1000,
+  bulk: {
+    size: 100
+  }
 })

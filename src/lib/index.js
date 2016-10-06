@@ -1,3 +1,7 @@
+import rethinkdbdash from 'rethinkdbdash'
+import config from '../config'
+
+const r = rethinkdbdash(Object.assign({}, config.rethinkdb, {cursor: true}))
 /**
 * join_db_table
 *
@@ -11,30 +15,43 @@ export function join_db_table (db_list) {
   }, [])
 }
 
-export async function refill (db_list, r, client) {
+export async function refill (db_list, client) {
   var counter = 0
   for (var i = 0; i < db_list.length; i++) {
     const { db, table } = db_list[i]
-    const data = await r.db(db).table(table)
-    for (var j = 0; j < data.length; j++) {
+    console.log(`working on db ${db} table ${table}`)
+    const dataCursor = await r.db(db).table(table)
+    let next = true
+    let data = []
+    while (next) {
       counter += 1
       try {
-        await client.update({
-          index: db,
-          type: table,
-          body: {
-            doc: data[j],
-            upsert: data[j]
-          },
-          id: data[j].id,
-          parent: data[j].__parent
-        })
+        let datum = await dataCursor.next()
+        data.push(datum)
+        if (data.length === config.bulk.size) {
+          await es_bulk(data, client, db, table)
+          data = []
+        }
       } catch (e) {
-        console.error(e)
+        next = false
+        await es_bulk(data, client, db, table)
+        data = []
       }
     }
   }
   console.log(`inserted ${counter} record`)
+}
+
+function es_bulk (data, client, db, table) {
+  if (data.length === 0) {
+    return
+  }
+  let bulkData = []
+  data.forEach((datum) => {
+    bulkData.push({ update: { _index: db, _type: table, _id: datum.id } })
+    bulkData.push({ doc: datum, upsert: datum })
+  })
+  return client.bulk({body: bulkData})
 }
 
 export function load_db_list (r) {

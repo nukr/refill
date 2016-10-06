@@ -15,6 +15,8 @@ const r = rethinkdbdash(config.rethinkdb)
   while (true) {
     try {
       await refiller()
+      console.log(`waiting ${config.interval}`)
+      await sleep(config.interval)
     } catch (e) {
       console.error(e)
     }
@@ -23,15 +25,23 @@ const r = rethinkdbdash(config.rethinkdb)
 })()
 
 async function refiller () {
-  console.time('load_db_list')
-  const db_list = await load_db_list(r)
-  console.timeEnd('load_db_list')
+  try {
+    var db_list = await load_db_list(r)
+    console.log(db_list)
+  } catch (e) {
+    console.error(e)
+  }
 
-  const joined_db_table = join_db_table(db_list)
+  try {
+    var joined_db_table = join_db_table(db_list)
+    console.log(joined_db_table)
+  } catch (e) {
+    console.error(e)
+  }
 
   console.time('refill')
   try {
-    await refill(joined_db_table, r, client)
+    await refill(joined_db_table, client)
   } catch (e) {
     if (e.status === 400) {
       const json_error = JSON.stringify(e.toJSON(), null, 2)
@@ -41,4 +51,12 @@ async function refiller () {
     }
   }
   console.timeEnd('refill')
+}
+
+function sleep (t) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve()
+    }, t)
+  })
 }

@@ -12,6 +12,9 @@ RUN apk add --no-cache curl \
   && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
   && apk del curl
 
+RUN npm install nodemon -g
+RUN npm install babel-cli -g
+
 WORKDIR /opt/app
 COPY . /opt/app
 
