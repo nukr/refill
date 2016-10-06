@@ -11,17 +11,16 @@ import {
 const client = new elasticsearch.Client(config.es)
 const r = rethinkdbdash(config.rethinkdb)
 
-refiller().then(() => {
-  setInterval(() => {
-    refiller().then(() => {
-      console.log('refiller done')
-    }).catch((e) => {
+;(async () => {
+  while (true) {
+    try {
+      await refiller()
+    } catch (e) {
       console.error(e)
-    })
-  }, config.interval)
-}).catch((e) => {
-  console.error(e)
-})
+    }
+    console.log('refiller done')
+  }
+})()
 
 async function refiller () {
   console.time('load_db_list')
