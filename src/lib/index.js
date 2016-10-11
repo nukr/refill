@@ -30,6 +30,7 @@ export async function refill (db_list, client) {
         let datum = await dataCursor.next()
         data.push(datum)
       } catch (e) {
+        console.log(e)
         next = false
       }
       if (data.length === config.bulk.size || !next) {
