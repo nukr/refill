@@ -30,11 +30,14 @@ export async function refill (db_list, client) {
         let datum = await dataCursor.next()
         data.push(datum)
       } catch (e) {
-        console.log(e)
         next = false
       }
       if (data.length === config.bulk.size || !next) {
-        await es_bulk(data, client, db, table)
+        try {
+          await es_bulk(data, client, db, table)
+        } catch (e) {
+          console.error(e)
+        }
         await sleep(config.bulk.delay)
         data = []
       }
