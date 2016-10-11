@@ -20,6 +20,9 @@ export async function refill (db_list, client) {
   var counter = 0
   for (var i = 0; i < db_list.length; i++) {
     const { db, table } = db_list[i]
+    if (db === 'meepcloud') {
+      continue
+    }
     console.log(`working on db ${db} table ${table}`)
     const dataCursor = await r.db(db).table(table)
     let next = true
