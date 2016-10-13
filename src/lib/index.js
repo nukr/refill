@@ -55,7 +55,7 @@ function es_bulk (data, client, db, table) {
   }
   let bulkData = []
   data.forEach((datum) => {
-    bulkData.push({ update: { _index: db, _type: table, _id: datum.id } })
+    bulkData.push({ update: { _index: db, _type: table, _id: datum.id, _parent: datum.__parent } })
     bulkData.push({ doc: datum, upsert: datum })
   })
   return client.bulk({body: bulkData})
